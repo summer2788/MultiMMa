@@ -321,7 +321,7 @@ def main(args):
     np.random.seed(seed)
     # random.seed(seed)
 
-    cudnn.benchmark = True # 
+    cudnn.benchmark = True  # This flag allows you to enable the inbuilt cudnn auto-tuner to find the best algorithm to use for your hardware.
 
     if not args.show_user_warnings:
         warnings.filterwarnings("ignore", category=UserWarning)
@@ -358,7 +358,7 @@ def main(args):
     dataset_val = build_regression_dataset(args, data_path=args.eval_data_path, transform=val_transform, max_images=args.max_val_images)
     dataset_test = None
 
-    if True:  # args.distributed:
+    if args.distributed:  # args.distributed:
         num_tasks = utils.get_world_size()
         global_rank = utils.get_rank()
         sampler_train = torch.utils.data.DistributedSampler(
