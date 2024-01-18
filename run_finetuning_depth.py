@@ -283,7 +283,7 @@ def get_args():
     parser.add_argument('--wandb_run_name', default=None, type=str,
                         help='run name on wandb')
     parser.add_argument('--wandb_group', default='', type=str)
-    parser.add_argument('--log_images_wandb', action='store_true')
+    parser.add_argument('--log_images_wandb', action='store_true') 
     parser.add_argument('--log_images_freq', default=5, type=int,
                         help="Frequency of image logging (in epochs)")
     parser.add_argument('--show_user_warnings', default=False, action='store_true')
@@ -293,7 +293,7 @@ def get_args():
     parser.add_argument('--world_size', default=1, type=int,
                         help='number of distributed processes')
     parser.add_argument('--local_rank', default=-1, type=int)
-    parser.add_argument('--dist_on_itp', action='store_true')
+    parser.add_argument('--dist_on_itp', action='store_false')  #set false not to use torch.distributed.launch
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     # Do we have a config file to parse?
@@ -312,7 +312,7 @@ def get_args():
 
 def main(args):
 
-    utils.init_distributed_mode(args)
+    utils.init_distributed_mode(args) 
     device = torch.device(args.device)
 
     # fix the seed for reproducibility
@@ -321,7 +321,7 @@ def main(args):
     np.random.seed(seed)
     # random.seed(seed)
 
-    cudnn.benchmark = True
+    cudnn.benchmark = True # 
 
     if not args.show_user_warnings:
         warnings.filterwarnings("ignore", category=UserWarning)
