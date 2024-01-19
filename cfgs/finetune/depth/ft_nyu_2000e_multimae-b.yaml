@@ -1,7 +1,7 @@
 # NYU depth config
 
 # Finetune from:
-finetune: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/Multimae B 98 RGB Depth Semseg 1600e.pth' # Change me
+finetune: '/content/drive/MyDrive/projects/urp/mmae/Multimae B 98 RGB Depth Semseg 1600e.pth' # Change me
 
 # Input tasks
 in_domains: rgb
@@ -31,8 +31,8 @@ weight_decay: 0.0001 # 1e-4
 aug_name: nyu-augs
 
 # Data info
-data_path: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/NYUv2/train' # Change me
-eval_data_path: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/NYUv2/test' # Change me
+data_path: '/content/drive/MyDrive/projects/urp/mmae/NYUv2/train' # Change me
+eval_data_path: '/content/drive/MyDrive/projects/urp/mmae/NYUv2/test' # Change me
 color_augs: True
 dataset_name: nyu
 dist_eval: False
@@ -49,4 +49,4 @@ wandb_entity: null # Change if needed
 wandb_run_name: 'ft_nyu_2000e_multimae-b'
 log_images_wandb: True
 log_images_freq: 250
-output_dir: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/output' # Change if needed
+output_dir: '/content/drive/MyDrive/projects/urp/mmae/output' # Change if needed
