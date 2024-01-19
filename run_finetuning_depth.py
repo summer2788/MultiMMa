@@ -642,7 +642,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
     gt_images = None
 
     for step, x in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
-        x = x[0] #
+        x = x[0]  #x is a list of dict, x[0] is the first dict , ex. {'rgb': tensor, 'depth': tensor, 'mask_valid': tensor}
         # assign learning rate & weight decay for each step
         it = start_steps + step  # global training iteration
         if lr_schedule_values is not None or wd_schedule_values is not None:
@@ -660,7 +660,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
             task: tensor.to(device, non_blocking=True)
             for task, tensor in x.items()
         }
-
+        #print tasks_dict to see 
         print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
 
         input_dict = {

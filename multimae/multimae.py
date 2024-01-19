@@ -379,7 +379,7 @@ class MultiMAE(nn.Module):
         return preds, task_masks
 
 
-@register_model
+@register_model # This is the decorator that registers the model
 def pretrain_multimae_base(
         input_adapters: Dict[str, nn.Module],
         output_adapters: Optional[Dict[str, nn.Module]],

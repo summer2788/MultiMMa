@@ -115,7 +115,11 @@ class DataAugmentationForRegression(object):
         # And then replace it back to rgb
         task_dict['rgb'] = task_dict.pop('image')
         
-        task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] # This is needed because the mask is 0-255 and we need 0-1
+        # Add mask_valid 
+        if task_dict['mask_valid'] == None:
+             task_dict['mask_valid'] = torch.ones_like(task_dict['depth'])
+        else:   
+            task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] # This is needed because the mask is 0-255 and we need 0-1
 
 
         for task in task_dict:
