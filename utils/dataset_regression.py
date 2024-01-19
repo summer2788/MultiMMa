@@ -16,7 +16,7 @@ import numpy as np
 import torch
 
 try:
-    import albumentations as A
+    import albumentations as A #albumentations is the library used for data augmentation
     from albumentations.pytorch import ToTensorV2
 except:
     print('albumentations not installed')
@@ -114,13 +114,15 @@ class DataAugmentationForRegression(object):
 
         # And then replace it back to rgb
         task_dict['rgb'] = task_dict.pop('image')
+        
+        # I have no idea why this is needed
+        # task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] #
 
-        task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None]
 
         for task in task_dict:
             if task in ['depth']:
                 img = task_dict[task]
-                if 'mask_valid' in task_dict:
+                if 'mask_valid' in task_dict: # If mask_valid is present, then we need to mask the image
                     mask_valid = task_dict['mask_valid'].squeeze()
                     img[~mask_valid] = self.mask_value
                 task_dict[task] = img.unsqueeze(0)

@@ -5,7 +5,7 @@ finetune: '/content/drive/MyDrive/projects/urp/mmae/Multimae B 98 RGB Depth Sems
 
 # Input tasks
 in_domains: rgb
-use_mask_valid: False # Requires "task" mask_valid to be saved to disk
+use_mask_valid: False # Requires "task" mask_valid to be saved to disk , mask_valid is a binary mask of valid pixels
 
 # Architecture
 model: multivit_base

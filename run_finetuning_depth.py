@@ -261,7 +261,7 @@ def get_args():
     parser.add_argument('--no_dist_eval', action='store_false', dest='dist_eval',
                     help='Disabling distributed evaluation')
     parser.set_defaults(dist_eval=False)
-    parser.add_argument('--num_workers', default=16, type=int)
+    parser.add_argument('--num_workers', default=16, type=int) 
     parser.add_argument('--pin_mem', action='store_true',
                         help='Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU.')
     parser.add_argument('--no_pin_mem', action='store_false', dest='pin_mem',
@@ -336,25 +336,24 @@ def main(args):
 
     args.in_domains = args.in_domains.split('-')
     args.out_domains = ['depth']
-    args.all_domains = list(set(args.in_domains) | set(args.out_domains))
+    args.all_domains = list(set(args.in_domains) | set(args.out_domains)) # ex ['depth', 'rgb']
     if args.use_mask_valid:
         args.all_domains.append('mask_valid')
     if 'rgb' not in args.all_domains:
         args.all_domains.append('rgb')
-
     args.decoder_main_tasks = args.decoder_main_tasks.split('-')
     for task in args.decoder_main_tasks:
         assert task in args.in_domains, f'Readout task {task} must be in in_domains.'
 
-    additional_targets = {domain: DOMAIN_CONF[domain]['aug_type'] for domain in args.all_domains}
+    additional_targets = {domain: DOMAIN_CONF[domain]['aug_type'] for domain in args.all_domains} # {'rgb': 'image', 'depth': 'mask'}
 
-    if args.aug_name == 'nyu-augs':
-        train_transform = nyu_transform(train=True, additional_targets=additional_targets, input_size=args.input_size, color_aug=args.color_augs)
+    if args.aug_name == 'nyu-augs': 
+        train_transform = nyu_transform(train=True, additional_targets=additional_targets, input_size=args.input_size, color_aug=args.color_augs) #pipeline for augmentation
         val_transform = nyu_transform(train=False, additional_targets=additional_targets, input_size=args.input_size)
     else:
         raise ValueError(f"Invalid aug: {args.aug_name}")
 
-    dataset_train = build_regression_dataset(args, data_path=args.data_path, transform=train_transform)
+    dataset_train = build_regression_dataset(args, data_path=args.data_path, transform=train_transform) #dataset_train is a MultiTaskImageFolder object
     dataset_val = build_regression_dataset(args, data_path=args.eval_data_path, transform=val_transform, max_images=args.max_val_images)
     dataset_test = None
 
@@ -380,7 +379,7 @@ def main(args):
             if dataset_test is not None:
                 sampler_test = torch.utils.data.SequentialSampler(dataset_test)
     else:
-        sampler_train = torch.utils.data.RandomSampler(dataset_train)
+        sampler_train = torch.utils.data.RandomSampler(dataset_train) #RandomSampler: samples elements randomly
         sampler_val = torch.utils.data.SequentialSampler(dataset_val)
         if dataset_test is not None:
             sampler_test = torch.utils.data.SequentialSampler(dataset_test)
@@ -405,7 +404,7 @@ def main(args):
     # Model
 
     # Rename depth task
-    if 'depth_zbuffer' in args.in_domains:
+    if 'depth_zbuffer' in args.in_domains:  # for taskonomy dataset
         args.in_domains.remove('depth_zbuffer')
         args.in_domains.append('depth')
     if 'depth_zbuffer' in args.out_domains:
@@ -471,7 +470,7 @@ def main(args):
 
         # Load pre-trained model
         msg = model.load_state_dict(checkpoint_model, strict=False)
-        print(msg)
+        print(msg) 
 
     # Optionally freeze the encoder
     if args.freeze_transformer:
@@ -484,7 +483,7 @@ def main(args):
     model_without_ddp = model
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-    print("Model = %s" % str(model_without_ddp))
+    print("Model = %s" % str(model_without_ddp))  # here , we can see the layers of the model
     print('number of params: {} M'.format(n_parameters / 1e6))
 
     if args.loss == 'l1':
@@ -643,7 +642,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
     gt_images = None
 
     for step, x in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
-        x = x[0]
+        x = x[0] #
         # assign learning rate & weight decay for each step
         it = start_steps + step  # global training iteration
         if lr_schedule_values is not None or wd_schedule_values is not None:

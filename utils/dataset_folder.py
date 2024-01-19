@@ -232,15 +232,18 @@ class MultiTaskDatasetFolder(VisionDataset):
                                             target_transform=target_transform)
         self.tasks = tasks
         classes, class_to_idx = self._find_classes(os.path.join(self.root, self.tasks[0]))
-
+        print(f"classes is : {classes}")
+        print(f"class_to_idx is : {class_to_idx}")
         prefixes = {} if prefixes is None else prefixes
         prefixes.update({task: '' for task in tasks if task not in prefixes})
-        
+        print(f"prefixes is : {prefixes}")
         samples = {
             task: make_dataset(os.path.join(self.root, f'{prefixes[task]}{task}'), class_to_idx, extensions, is_valid_file)
             for task in self.tasks
         }
         
+        print(f"samples are {samples}")
+        print(f"samples keys are : {samples.keys()}")
         for task, task_samples in samples.items():
             if len(task_samples) == 0:
                 msg = "Found 0 logs in subfolders of: {}\n".format(os.path.join(self.root, task))
