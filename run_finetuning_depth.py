@@ -661,6 +661,8 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
             for task, tensor in x.items()
         }
 
+        print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
+
         input_dict = {
             task: tensor
             for task, tensor in tasks_dict.items()

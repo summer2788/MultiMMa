@@ -115,8 +115,7 @@ class DataAugmentationForRegression(object):
         # And then replace it back to rgb
         task_dict['rgb'] = task_dict.pop('image')
         
-        # I have no idea why this is needed
-        # task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] #
+        task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] # This is needed because the mask is 0-255 and we need 0-1
 
 
         for task in task_dict:
