@@ -5,7 +5,7 @@ finetune: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/Mu
 
 # Input tasks
 in_domains: rgb
-use_mask_valid: True # Requires "task" mask_valid to be saved to disk
+use_mask_valid: False # Requires "task" mask_valid to be saved to disk
 
 # Architecture
 model: multivit_base
@@ -31,15 +31,15 @@ weight_decay: 0.0001 # 1e-4
 aug_name: nyu-augs
 
 # Data info
-data_path: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/NYUv2/train/rgb/data' # Change me
-eval_data_path: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/NYUv2/test/depth' # Change me
+data_path: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/NYUv2/train' # Change me
+eval_data_path: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/NYUv2/test' # Change me
 color_augs: True
 dataset_name: nyu
-dist_eval: True
+dist_eval: False
 eval_freq: 250
 standardize_depth: False
 
-# Misc.
+# Misc
 find_unused_params: True
 
 # Wandb and logging
@@ -49,4 +49,4 @@ wandb_entity: null # Change if needed
 wandb_run_name: 'ft_nyu_2000e_multimae-b'
 log_images_wandb: True
 log_images_freq: 250
-output_dir: '/output/finetune/depth/ft_nyu_2000e_multimae-b' # Change if needed
+output_dir: '/Users/parkjong-eun/ParkJongeun/project/winter_research/MultiMAE_1/output' # Change if needed
