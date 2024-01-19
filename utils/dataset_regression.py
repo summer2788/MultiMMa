@@ -118,7 +118,8 @@ class DataAugmentationForRegression(object):
         # Add mask_valid 
         #if task_dict['mask_valid'] == None:
         if 'mask_valid' not in task_dict:
-             task_dict['mask_valid'] = torch.ones_like(task_dict['depth'])
+             task_dict['mask_valid'] = torch.ones_like(task_dict['rgb'])
+          
          
         task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] # This is needed because the mask is 0-255 and we need 0-1
 
