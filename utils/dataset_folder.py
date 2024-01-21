@@ -218,8 +218,8 @@ class MultiTaskDatasetFolder(VisionDataset):
 
     def __init__(
             self,
-            root: str,
-            tasks: List[str],
+            root: str,  # '/content/drive/MyDrive/projects/urp/mmae/NYUv2/test'
+            tasks: List[str], # ex ['depth', 'rgb']
             loader: Callable[[str], Any],
             extensions: Optional[Tuple[str, ...]] = None,
             transform: Optional[Callable] = None,
@@ -232,15 +232,16 @@ class MultiTaskDatasetFolder(VisionDataset):
                                             target_transform=target_transform)
         self.tasks = tasks
         classes, class_to_idx = self._find_classes(os.path.join(self.root, self.tasks[0]))
-        print(f"classes is : {classes}")
-        print(f"class_to_idx is : {class_to_idx}")
-        prefixes = {} if prefixes is None else prefixes
-        prefixes.update({task: '' for task in tasks if task not in prefixes})
-        print(f"prefixes is : {prefixes}")
+        # print(f"classes is : {classes}") # data 
+        # print(f"class_to_idx is : {class_to_idx}") # 0 
+        prefixes = {} if prefixes is None else prefixes # None 
+        prefixes.update({task: '' for task in tasks if task not in prefixes})  # {'depth': '', 'rgb': ''}
+        # print(f"prefixes is : {prefixes}")
         samples = {
             task: make_dataset(os.path.join(self.root, f'{prefixes[task]}{task}'), class_to_idx, extensions, is_valid_file)
             for task in self.tasks
         }
+        # ex) samples are {'rgb': [('/content/drive/MyDrive/projects/urp/mmae/NYUv2/train/rgb/data/0002.png', 0), ('/content/drive/MyDrive/projects/urp/mmae/NYUv2/train/rgb/data/0003.png', 0)...
         
         print(f"samples are {samples}")
         print(f"samples keys are : {samples.keys()}")
@@ -282,7 +283,7 @@ class MultiTaskDatasetFolder(VisionDataset):
         Ensures:
             No class is a subdirectory of another.
         """
-        classes = [d.name for d in os.scandir(dir) if d.is_dir()]
+        classes = [d.name for d in os.scandir(dir) if d.is_dir()] # os.scandir : iterate over files and directories in the given path
         classes.sort()
         class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
         return classes, class_to_idx
@@ -416,8 +417,8 @@ class MultiTaskImageFolder(MultiTaskDatasetFolder):
 
     def __init__(
             self,
-            root: str,
-            tasks: List[str],
+            root: str, # '/content/drive/MyDrive/projects/urp/mmae/NYUv2/test'
+            tasks: List[str], # ex ['depth', 'rgb']
             transform: Optional[Callable] = None,
             target_transform: Optional[Callable] = None,
             loader: Callable[[str], Any] = pil_loader,

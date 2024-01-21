@@ -88,7 +88,10 @@ def masked_nyu_metrics(preds, target, mask_valid=None):
     # map to the original scale 
     preds = preds * NYU_STD + NYU_MEAN   # the predicted depth values
     target = target * NYU_STD + NYU_MEAN  # the ground truth depth values
-
+    print(f"preds: {preds.shape}")
+    print(f"first value of preds: {preds[0]}")
+    print(f"target: {target.shape}")
+    print(f"first value of target: {target[0]}")
     if mask_valid is None:
         mask_valid = torch.ones_like(preds).bool()
     if preds.shape[1] != mask_valid.shape[1]:  #preds.shape would be (batch_size, 1, 256, 256)
@@ -100,7 +103,10 @@ def masked_nyu_metrics(preds, target, mask_valid=None):
     diff[~mask_valid] = 0 #invalid area are zero out 
     
     max_rel = torch.maximum(preds/torch.clamp_min(target, 1e-6), target/torch.clamp_min(preds, 1e-6))
+    print(f"max_rel's first value: {max_rel[0]}")
+
     max_rel = max_rel[mask_valid]
+    print(f"max_rel's first value after mask_valid: {max_rel[0]}")
 
     log_diff = torch.log(torch.clamp_min(preds, 1e-6)) - torch.log(torch.clamp_min(target, 1e-6))
     log_diff[~mask_valid] = 0
@@ -666,8 +672,10 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
         input_dict = {
             task: tensor
             for task, tensor in tasks_dict.items()
-            if task in in_domains
+            if task in in_domains # args.in_domains = ['rgb']
         }
+
+        # print('=====> input_dict:', {k: v.shape for k, v in input_dict.items()})
 
         # Robust depth standardization
         if standardize_depth and 'depth' in input_dict:
@@ -702,7 +710,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
             preds = model(input_dict, return_all_layers=return_all_layers)
             # print('=====> preds:', {k: v.shape for k, v in preds.items()})
             task_losses = {
-                task: tasks_loss_fn[task](preds[task].float(), tasks_dict[task], mask_valid=None)
+                task: tasks_loss_fn[task](preds[task].float(), tasks_dict[task], mask_valid=None) #ex) masked_berhu_loss(preds['depth'].float(), tasks_dict['depth'], mask_valid=None)
                 for task in preds
             }
             # print('=====> task_losses:', {k: v.shape for k, v in task_losses.items()})
@@ -792,7 +800,7 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains,
     gt_images = None
 
     for x in metric_logger.log_every(data_loader, print_freq, header):
-        x = x[0]
+        x = x[0] # x is a list of dict, x[0] is the first dict , ex. {'rgb': tensor, 'depth': tensor, 'mask_valid': tensor}
 
         if 'depth_zbuffer' in x:
             x['depth'] = x['depth_zbuffer']
@@ -807,7 +815,7 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains,
             task: tensor
             for task, tensor in tasks_dict.items()
             if task in in_domains
-        }
+        } # rgb
 
         # Robust depth standardization
         if standardize_depth and 'depth' in input_dict:
