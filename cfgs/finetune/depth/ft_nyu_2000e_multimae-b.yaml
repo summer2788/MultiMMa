@@ -16,13 +16,13 @@ output_adapter: dpt
 
 # Train
 loss: berhu
-epochs: 2000
+epochs: 200
 opt: adamw
 lr: 0.0001 # = 1e-4
 warmup_lr: 0.000001 # = 1e-6
 min_lr: 0.
 warmup_epochs: 100
-batch_size: 64
+batch_size: 32
 input_size: 256
 layer_decay: 0.75
 weight_decay: 0.0001 # 1e-4
