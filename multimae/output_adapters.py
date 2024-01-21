@@ -436,7 +436,7 @@ class SegmenterMaskTransformerAdapter(nn.Module):
             nn.init.constant_(m.bias, 0)
             nn.init.constant_(m.weight, 1.0)
 
-    def adapt_tokens(self, encoder_tokens, input_info):
+    def adapt_tokens(self, encoder_tokens, input_info): 
         # Adapt tokens
         x = []
         for task in self.main_tasks:
@@ -604,8 +604,8 @@ class DPTOutputAdapter(nn.Module):
         self.num_channels = num_classes
         self.stride_level = stride_level
         self.patch_size = pair(patch_size)
-        self.main_tasks = main_tasks
-        self.hooks = hooks
+        self.main_tasks = main_tasks # Tasks to use for the adapter. Only tokens coming from these tasks are kept.
+        self.hooks = hooks 
         self.layer_dims = layer_dims
         self.feature_dim = feature_dim
         self.dim_tokens_enc = dim_tokens_enc * len(self.main_tasks) if dim_tokens_enc is not None else None
@@ -717,15 +717,15 @@ class DPTOutputAdapter(nn.Module):
     def adapt_tokens(self, encoder_tokens, input_info):
         # Adapt tokens
         x = []
-        for task in self.main_tasks:
-            start_idx = input_info['tasks'][task]['start_idx']
-            end_idx = input_info['tasks'][task]['end_idx']
+        for task in self.main_tasks: 
+            start_idx = input_info['tasks'][task]['start_idx']  
+            end_idx = input_info['tasks'][task]['end_idx']  
             x.append(encoder_tokens[:, start_idx:end_idx])
 
         x = torch.cat(x, dim=-1)
         return x
 
-    def forward(self, encoder_tokens: List[torch.Tensor], input_info: Dict):
+    def forward(self, encoder_tokens: List[torch.Tensor], input_info: Dict): #ex) input_info['tasks']['rgb']['start_idx'] = 0, input_info['tasks']['rgb']['end_idx'] = 768
         assert self.dim_tokens_enc is not None, 'Need to call init(dim_tokens_enc) function first'
         H, W = input_info['image_size']
         # Number of patches in height and width

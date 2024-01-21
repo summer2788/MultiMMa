@@ -220,17 +220,17 @@ class MultiTaskDatasetFolder(VisionDataset):
             self,
             root: str,  # '/content/drive/MyDrive/projects/urp/mmae/NYUv2/test'
             tasks: List[str], # ex ['depth', 'rgb']
-            loader: Callable[[str], Any],
-            extensions: Optional[Tuple[str, ...]] = None,
-            transform: Optional[Callable] = None,
-            target_transform: Optional[Callable] = None,
-            is_valid_file: Optional[Callable[[str], bool]] = None,
-            prefixes: Optional[Dict[str,str]] = None,
-            max_images: Optional[int] = None
+            loader: Callable[[str], Any], #None
+            extensions: Optional[Tuple[str, ...]] = None,   #IMG_EXTENSIONS
+            transform: Optional[Callable] = None, # nyu_transform
+            target_transform: Optional[Callable] = None,  # None
+            is_valid_file: Optional[Callable[[str], bool]] = None,   # None
+            prefixes: Optional[Dict[str,str]] = None,   # None
+            max_images: Optional[int] = None  # 100
     ) -> None:
         super(MultiTaskDatasetFolder, self).__init__(root, transform=transform,
                                             target_transform=target_transform)
-        self.tasks = tasks
+        self.tasks = tasks # ex ['depth', 'rgb']
         classes, class_to_idx = self._find_classes(os.path.join(self.root, self.tasks[0]))
         # print(f"classes is : {classes}") # data 
         # print(f"class_to_idx is : {class_to_idx}") # 0 
@@ -243,8 +243,8 @@ class MultiTaskDatasetFolder(VisionDataset):
         }
         # ex) samples are {'rgb': [('/content/drive/MyDrive/projects/urp/mmae/NYUv2/train/rgb/data/0002.png', 0), ('/content/drive/MyDrive/projects/urp/mmae/NYUv2/train/rgb/data/0003.png', 0)...
         
-        print(f"samples are {samples}")
-        print(f"samples keys are : {samples.keys()}")
+        # print(f"samples are {samples}")
+        # print(f"samples keys are : {samples.keys()}")
         for task, task_samples in samples.items():
             if len(task_samples) == 0:
                 msg = "Found 0 logs in subfolders of: {}\n".format(os.path.join(self.root, task))
@@ -298,13 +298,13 @@ class MultiTaskDatasetFolder(VisionDataset):
         """
         if index in self.cache:
             sample_dict, target = deepcopy(self.cache[index])
-        else:
+        else: # this part used for the first time
             sample_dict = {}
             for task in self.tasks:
-                path, target = self.samples[task][index]
+                path, target = self.samples[task][index]  # ex ('/content/drive/MyDrive/projects/urp/mmae/NYUv2/test/depth/data/0000.png', 0)
                 sample = pil_loader(path, convert_rgb=(task=='rgb'))
                 sample = sample.convert('P') if 'semseg' in task else sample
-                sample_dict[task] = sample
+                sample_dict[task] = sample # ex {'depth': <PIL.Image.Image image mode=L size=640x480 at 0x7F7F5F2F2D90>, 'rgb': <PIL.Image.Image image mode=RGB size=640x480 at 0x7F7F5F2F2E50>}
             # self.cache[index] = deepcopy((sample_dict, target))
 
         if self.transform is not None:
@@ -419,9 +419,9 @@ class MultiTaskImageFolder(MultiTaskDatasetFolder):
             self,
             root: str, # '/content/drive/MyDrive/projects/urp/mmae/NYUv2/test'
             tasks: List[str], # ex ['depth', 'rgb']
-            transform: Optional[Callable] = None,
+            transform: Optional[Callable] = None, #nyu_transform
             target_transform: Optional[Callable] = None,
-            loader: Callable[[str], Any] = pil_loader,
+            loader: Callable[[str], Any] = pil_loader,  #optional
             is_valid_file: Optional[Callable[[str], bool]] = None,
             prefixes: Optional[Dict[str,str]] = None,
             max_images: Optional[int] = None

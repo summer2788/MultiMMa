@@ -88,10 +88,10 @@ def masked_nyu_metrics(preds, target, mask_valid=None):
     # map to the original scale 
     preds = preds * NYU_STD + NYU_MEAN   # the predicted depth values
     target = target * NYU_STD + NYU_MEAN  # the ground truth depth values
-    print(f"preds: {preds.shape}")
-    print(f"first value of preds: {preds[0]}")
-    print(f"target: {target.shape}")
-    print(f"first value of target: {target[0]}")
+    # print(f"preds: {preds.shape}")
+    # print(f"first value of preds: {preds[0]}")
+    # print(f"target: {target.shape}")
+    # print(f"first value of target: {target[0]}")
     if mask_valid is None:
         mask_valid = torch.ones_like(preds).bool()
     if preds.shape[1] != mask_valid.shape[1]:  #preds.shape would be (batch_size, 1, 256, 256)
@@ -103,10 +103,10 @@ def masked_nyu_metrics(preds, target, mask_valid=None):
     diff[~mask_valid] = 0 #invalid area are zero out 
     
     max_rel = torch.maximum(preds/torch.clamp_min(target, 1e-6), target/torch.clamp_min(preds, 1e-6))
-    print(f"max_rel's first value: {max_rel[0]}")
+    # print(f"max_rel's first value: {max_rel[0]}")
 
     max_rel = max_rel[mask_valid]
-    print(f"max_rel's first value after mask_valid: {max_rel[0]}")
+    # print(f"max_rel's first value after mask_valid: {max_rel[0]}")
 
     log_diff = torch.log(torch.clamp_min(preds, 1e-6)) - torch.log(torch.clamp_min(target, 1e-6))
     log_diff[~mask_valid] = 0
@@ -238,8 +238,8 @@ def get_args():
     parser.add_argument('--color_augs', default=False, action='store_true')
     parser.add_argument('--no_color_augs', dest='color_augs', default=False, action='store_false')
     parser.add_argument('--eval_freq', default=1, type=int, help="frequency of evaluation")
-    parser.add_argument('--max_train_images', default=1000, type=int, help='number of train images')
-    parser.add_argument('--max_val_images', default=100, type=int, help='number of validation images')
+    parser.add_argument('--max_train_images', default=795, type=int, help='number of train images')
+    parser.add_argument('--max_val_images', default=655, type=int, help='number of validation images')
     parser.add_argument('--max_test_images', default=100, type=int, help='number of test images')
 
     parser.add_argument('--output_dir', default='',
@@ -340,14 +340,14 @@ def main(args):
     else:
         log_writer = None
 
-    args.in_domains = args.in_domains.split('-')
+    args.in_domains = args.in_domains.split('-') # ex ['rgb']
     args.out_domains = ['depth']
     args.all_domains = list(set(args.in_domains) | set(args.out_domains)) # ex ['depth', 'rgb']
     if args.use_mask_valid:
         args.all_domains.append('mask_valid')
     if 'rgb' not in args.all_domains:
         args.all_domains.append('rgb')
-    args.decoder_main_tasks = args.decoder_main_tasks.split('-')
+    args.decoder_main_tasks = args.decoder_main_tasks.split('-') # for acessing encoder's output index , ex)  ['rgb']
     for task in args.decoder_main_tasks:
         assert task in args.in_domains, f'Readout task {task} must be in in_domains.'
 
@@ -436,11 +436,11 @@ def main(args):
     }
 
     output_adapters = {
-        domain: adapters_dict[args.output_adapter](
+        domain: adapters_dict[args.output_adapter]( # ex DPTOutputAdapter
             num_classes=DOMAIN_CONF[domain]['channels'],
             stride_level=DOMAIN_CONF[domain]['stride_level'],
             patch_size=args.patch_size,
-            main_tasks=args.decoder_main_tasks
+            main_tasks=args.decoder_main_tasks # ex ['rgb']
         )
         for domain in args.out_domains
     }
@@ -553,7 +553,7 @@ def main(args):
     utils.auto_load_model(
         args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer, loss_scaler=loss_scaler)
 
-    if args.eval:
+    if args.eval: # skip train process
         val_stats = evaluate(model=model, tasks_loss_fn=tasks_loss_fn, data_loader=data_loader_val,
                              device=device, epoch=-1, in_domains=args.in_domains, mode='val', log_images=True,
                              return_all_layers=return_all_layers, standardize_depth=args.standardize_depth)
@@ -562,7 +562,7 @@ def main(args):
         if log_writer is not None:
             log_writer.set_step(args.start_epoch * num_training_steps_per_epoch)
             log_writer.update({**{f'val/{k}': v for k, v in val_stats.items()}, 'epoch': args.start_epoch})
-        exit(0)
+        exit(0) # !! 
 
 
     print(f"Start training for {args.epochs} epochs")
@@ -589,7 +589,7 @@ def main(args):
                     args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
                     loss_scaler=loss_scaler, epoch=epoch)
 
-        if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
+        if epoch % args.eval_freq == 0 or epoch == args.epochs - 1: 
             log_images = args.log_wandb and args.log_images_wandb and (epoch % args.log_images_freq == 0)
             val_stats = evaluate(model=model, tasks_loss_fn=tasks_loss_fn, data_loader=data_loader_val,
                                  device=device, epoch=epoch, in_domains=args.in_domains, log_images=log_images,
@@ -597,7 +597,7 @@ def main(args):
             if val_stats["loss"] < min_val_loss:
                 min_val_loss = val_stats["loss"]
                 if args.output_dir and args.save_ckpt:
-                    utils.save_model(
+                    utils.save_model( # for saving the best model
                         args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
                         loss_scaler=loss_scaler, epoch="best")
                 print(f'New best val loss: {min_val_loss:.3f}')
@@ -622,11 +622,11 @@ def main(args):
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
 
-    # Test with best checkpoint
+
     print('Loading model with best validation loss')
     checkpoint = torch.load(os.path.join(args.output_dir, 'checkpoint-best.pth'), map_location='cpu')
     state_dict = {}
-    for k,v in checkpoint['model'].items():
+    for k,v in checkpoint['model'].items(): 
         state_dict[f'module.{k}'] = v
     msg = model.load_state_dict(state_dict, strict=False)
     print(msg)
@@ -667,7 +667,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
             for task, tensor in x.items()
         }
         #print tasks_dict to see 
-        print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
+        # print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
 
         input_dict = {
             task: tensor
@@ -727,7 +727,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
 
         optimizer.zero_grad()
         # this attribute is added by timm on one optimizer (adahessian)
-        is_second_order = hasattr(optimizer, 'is_second_order') and optimizer.is_second_order
+        is_second_order = hasattr(optimizer, 'is_second_order') and optimizer.is_second_order #is.second_order means whether the optimizer is second order or not
         grad_norm = loss_scaler(loss, optimizer, clip_grad=max_norm,
                                 parameters=model.parameters(), create_graph=is_second_order)
         # loss_scale_value = loss_scaler.state_dict()["scale"]
@@ -801,7 +801,7 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains,
 
     for x in metric_logger.log_every(data_loader, print_freq, header):
         x = x[0] # x is a list of dict, x[0] is the first dict , ex. {'rgb': tensor, 'depth': tensor, 'mask_valid': tensor}
-
+        
         if 'depth_zbuffer' in x:
             x['depth'] = x['depth_zbuffer']
             del x['depth_zbuffer']
@@ -810,6 +810,10 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains,
             task: tensor.to(device, non_blocking=True)
             for task, tensor in x.items()
         }
+
+        # print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
+        #check tasks_dict['depth] has all 0 values
+        # print('=====> tasks_dict[depth]:', tasks_dict['depth'])
 
         input_dict = {
             task: tensor

@@ -80,7 +80,7 @@ class MultiMAE(nn.Module):
         if output_adapters is not None:
             for adapter in output_adapters.values():
                 adapter.init(dim_tokens_enc=dim_tokens)
-            self.output_adapters = nn.ModuleDict(output_adapters)
+            self.output_adapters = nn.ModuleDict(output_adapters) # nn.ModuleDict is a special dictionary that keeps track of the parameters of the modules it contains
         else:
             self.output_adapters = None
 

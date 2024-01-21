@@ -101,7 +101,7 @@ class DataAugmentationForRegression(object):
         self.transform = transform
         self.mask_value = mask_value
 
-    def __call__(self, task_dict):
+    def __call__(self, task_dict): #ex {'depth': <PIL.Image.Image image mode=L size=640x480 at 0x7F7F5F2F2D90>, 'rgb': <PIL.Image.Image image mode=RGB size=640x480 at 0x7F7F5F2F2E50>}
 
         # Need to replace rgb key to image
         task_dict['image'] = task_dict.pop('rgb')
@@ -127,11 +127,11 @@ class DataAugmentationForRegression(object):
         for task in task_dict:
             if task in ['depth']:
                 img = task_dict[task]
-                print(f"img.shape: {img.shape}")
-                if 'mask_valid' in task_dict: # If mask_valid is present, then we need to mask the image
-                    mask_valid = task_dict['mask_valid'].squeeze()
-                    print(f"mask_valid.shape: {mask_valid.shape}")
-                    img[~mask_valid] = self.mask_value
+                # print(f"img.shape: {img.shape}")
+                # if 'mask_valid' in task_dict: # If mask_valid is present, then we need to mask the image
+                #     mask_valid = task_dict['mask_valid'].squeeze()
+                #     print(f"mask_valid.shape: {mask_valid.shape}")
+                #     img[~mask_valid] = self.mask_value
                 task_dict[task] = img.unsqueeze(0)
             elif task in ['rgb']:
                 task_dict[task] = task_dict[task].to(torch.float)
