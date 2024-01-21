@@ -86,18 +86,18 @@ def masked_berhu_loss(preds, target, mask_valid=None):
 @torch.no_grad()
 def masked_nyu_metrics(preds, target, mask_valid=None):
     # map to the original scale 
-    preds = preds * NYU_STD + NYU_MEAN
-    target = target * NYU_STD + NYU_MEAN
+    preds = preds * NYU_STD + NYU_MEAN   # the predicted depth values
+    target = target * NYU_STD + NYU_MEAN  # the ground truth depth values
 
     if mask_valid is None:
         mask_valid = torch.ones_like(preds).bool()
-    if preds.shape[1] != mask_valid.shape[1]:
+    if preds.shape[1] != mask_valid.shape[1]:  #preds.shape would be (batch_size, 1, 256, 256)
         mask_valid = mask_valid.repeat_interleave(preds.shape[1], 1)
 
     n = mask_valid.sum()
     
     diff = torch.abs(preds - target)
-    diff[~mask_valid] = 0
+    diff[~mask_valid] = 0 #invalid area are zero out 
     
     max_rel = torch.maximum(preds/torch.clamp_min(target, 1e-6), target/torch.clamp_min(preds, 1e-6))
     max_rel = max_rel[mask_valid]
@@ -106,11 +106,11 @@ def masked_nyu_metrics(preds, target, mask_valid=None):
     log_diff[~mask_valid] = 0
 
     metrics = {
-        'rmse': (diff.square().sum() / n).sqrt(),
-        'rel': (diff/torch.clamp_min(target, 1e-6))[mask_valid].mean(),
-        'srel': (diff**2/torch.clamp_min(target, 1e-6))[mask_valid].mean(),
-        'log10': (log_diff.square().sum() / n).sqrt(),
-        'delta_1': (max_rel < 1.25).float().mean(),
+        'rmse': (diff.square().sum() / n).sqrt(),  #Root Mean Squared Error over valid areas
+        'rel': (diff/torch.clamp_min(target, 1e-6))[mask_valid].mean(), # Mean absolute relative difference,
+        'srel': (diff**2/torch.clamp_min(target, 1e-6))[mask_valid].mean(),  # Squared relative error,
+        'log10': (log_diff.square().sum() / n).sqrt(), #Root Mean Squared Error of the logarithmic differences
+        'delta_1': (max_rel < 1.25).float().mean(),  # Thresholded accuracy metrics 
         'delta_2': (max_rel < (1.25**2)).float().mean(),
         'delta_3': (max_rel < (1.25**3)).float().mean(),
     }
@@ -710,7 +710,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
 
         loss_value = loss.item()
         task_loss_values = {f'{task}_loss': l.item() for task, l in task_losses.items()}
-        metrics = masked_nyu_metrics(preds['depth'], tasks_dict['depth'], mask_valid=tasks_dict['mask_valid'])
+        metrics = masked_nyu_metrics(preds['depth'], tasks_dict['depth'], mask_valid=None)
 
         # print(f"Loss: {loss_value:.3f}")
         if not math.isfinite(loss_value): 
@@ -846,7 +846,7 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains,
 
         loss_value = loss.item()
         task_loss_values = {f'{task}_loss': l.item() for task, l in task_losses.items()}
-        metrics = masked_nyu_metrics(preds['depth'], tasks_dict['depth'], mask_valid=tasks_dict['mask_valid'])
+        metrics = masked_nyu_metrics(preds['depth'], tasks_dict['depth'], mask_valid=None)
 
         metric_logger.update(**metrics)
 
