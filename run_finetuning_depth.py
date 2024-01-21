@@ -700,17 +700,20 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
             # print('=====> input_dict:', {k: v.shape for k, v in input_dict.items()})
 
             preds = model(input_dict, return_all_layers=return_all_layers)
+            # print('=====> preds:', {k: v.shape for k, v in preds.items()})
             task_losses = {
                 task: tasks_loss_fn[task](preds[task].float(), tasks_dict[task], mask_valid=tasks_dict['mask_valid'])
                 for task in preds
             }
+            # print('=====> task_losses:', {k: v.shape for k, v in task_losses.items()})
             loss = sum(task_losses.values())
 
         loss_value = loss.item()
         task_loss_values = {f'{task}_loss': l.item() for task, l in task_losses.items()}
         metrics = masked_nyu_metrics(preds['depth'], tasks_dict['depth'], mask_valid=tasks_dict['mask_valid'])
 
-        if not math.isfinite(loss_value):
+        # print(f"Loss: {loss_value:.3f}")
+        if not math.isfinite(loss_value): 
             print("Loss is {}, stopping training".format(loss_value))
             sys.exit(1)
 

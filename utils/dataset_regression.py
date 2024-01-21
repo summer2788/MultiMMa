@@ -118,7 +118,7 @@ class DataAugmentationForRegression(object):
         # Add mask_valid 
         #if task_dict['mask_valid'] == None:
         if 'mask_valid' not in task_dict:
-             task_dict['mask_valid'] = torch.ones_like(task_dict['rgb'])
+             task_dict['mask_valid'] = torch.ones_like(task_dict['depth'])
           
          
         task_dict['mask_valid'] = (task_dict['mask_valid'] == 255)[None] # This is needed because the mask is 0-255 and we need 0-1
@@ -127,8 +127,10 @@ class DataAugmentationForRegression(object):
         for task in task_dict:
             if task in ['depth']:
                 img = task_dict[task]
+                print(f"img.shape: {img.shape}")
                 if 'mask_valid' in task_dict: # If mask_valid is present, then we need to mask the image
                     mask_valid = task_dict['mask_valid'].squeeze()
+                    print(f"mask_valid.shape: {mask_valid.shape}")
                     img[~mask_valid] = self.mask_value
                 task_dict[task] = img.unsqueeze(0)
             elif task in ['rgb']:
