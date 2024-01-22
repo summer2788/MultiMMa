@@ -177,7 +177,7 @@ def build_semseg_dataset(args, data_path, transform, max_images=None):
                                           standardize_depth=args.standardize_depth,
                                           seg_reduce_zero_label=args.seg_reduce_zero_label,
                                           seg_use_void_label=args.seg_use_void_label)
-    prefixes = {'depth': 'pseudo_'} if args.load_pseudo_depth else None
+    prefixes = None
     return MultiTaskImageFolder(data_path, args.all_domains, transform=transform, prefixes=prefixes, max_images=max_images)
 
 
