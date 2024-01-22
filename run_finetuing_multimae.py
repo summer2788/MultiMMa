@@ -274,7 +274,7 @@ def get_args():
     parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--resume', default='', help='resume from checkpoint')
     parser.add_argument('--auto_resume', action='store_true')
-    parser.add_argument('--no_auto_resume', action='store_false', dest='auto_resume')
+    # parser.add_argument('--no_auto_resume', action='store_false', dest='auto_resume')
     parser.set_defaults(auto_resume=True)
 
     parser.add_argument('--save_ckpt', action='store_true')
@@ -493,7 +493,7 @@ def main(args):
             checkpoint = torch.load(args.finetune, map_location='cpu')
 
         checkpoint_model = checkpoint['model']
-
+        
         # # Remove keys for semantic segmentation
         # for k in list(checkpoint_model.keys()):
         #     if "semseg" in k:
@@ -589,8 +589,8 @@ def main(args):
     # Specifies if transformer encoder should only return last layer or all layers for DPT
     return_all_layers = args.output_adapter in ['dpt']
 
-    utils.auto_load_model(
-        args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer, loss_scaler=loss_scaler)
+    # utils.auto_load_model(
+    #     args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer, loss_scaler=loss_scaler)
 
     if args.eval: # skip train process
         val_stats = evaluate(model=model, tasks_loss_fn=tasks_loss_fn, data_loader=data_loader_val,

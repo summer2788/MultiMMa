@@ -476,24 +476,42 @@ class MultiViT(MultiMAE):
 
         input_tokens, input_info = self.process_input(x)
 
-        # Pass tokens through Transformer
-        if not return_all_layers:
-            encoder_tokens = self.encoder(input_tokens)
-        else:
-            # Optionally access every intermediate layer
-            encoder_tokens = []
-            tokens = input_tokens
-            for block in self.encoder:
-                tokens = block(tokens)
-                encoder_tokens.append(tokens)
 
-        if self.output_adapters is None:
-            return encoder_tokens
+        """
+        Original 
+        """    
+        # # Pass tokens through Transformer
+        # if not return_all_layers:
+        #     encoder_tokens = self.encoder(input_tokens)
+        # else:
+        #     # Optionally access every intermediate layer
+        #     encoder_tokens = []
+        #     tokens = input_tokens
+        #     for block in self.encoder:
+        #         tokens = block(tokens)
+        #         encoder_tokens.append(tokens)
+
+        """
+        Modified for multi task(seg+ depth) training,
+        for multi task(seg+ depth) training, 
+           two versions of encoder output are needed:
+        """
+        encoder_tokens = self.encoder(input_tokens)  #for seg
+
+        encoder_tokens_dpt = []  #for depth 
+        tokens = input_tokens
+        for block in self.encoder:
+            tokens = block(tokens)
+            encoder_tokens_dpt.append(tokens)
+            
+
+        # if self.output_adapters is None:
+        #     return encoder_tokens
 
         # Decode tokens for each task using task-specific output adapters
         preds = {
             domain: self.output_adapters[domain](
-                encoder_tokens=encoder_tokens,
+                encoder_tokens=encoder_tokens if domain != 'depth' else encoder_tokens_dpt,
                 input_info=input_info,
             )
             for domain in self.output_adapters

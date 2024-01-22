@@ -547,7 +547,9 @@ class ConvNeXtAdapter(nn.Module): #REF: ConvNeXt output adapter
         for task in self.main_tasks:
             start_idx = input_info['tasks'][task]['start_idx']
             end_idx = input_info['tasks'][task]['end_idx']
+            print(encoder_tokens.shape)
             x.append(encoder_tokens[:, start_idx:end_idx])
+            
 
         x = torch.cat(x, dim=-1)
         return x
