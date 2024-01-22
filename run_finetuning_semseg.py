@@ -123,7 +123,7 @@ def get_args():
                         help='Token dimension for the decoder layers, for convnext and segmenter adapters')
     parser.add_argument('--decoder_depth', default=4, type=int,
                         help='Depth of decoder (for convnext and segmenter adapters')
-    parser.add_argument('--drop_path_decoder', type=float, default=0.0, metavar='PCT',
+    parser.add_argument('--drop_path_decoder', type=float, default=0.0, metavar='PCT', #pct mean percentage
                         help='Drop path rate (default: 0.0)')
     parser.add_argument('--decoder_preds_per_patch', type=int, default=16,
                         help='Predictions per patch for convnext adapter')
@@ -287,7 +287,7 @@ def main(args):
     if 'rgb' not in args.all_domains:
         args.all_domains.append('rgb')
     args.num_classes_with_void = args.num_classes + 1 if args.seg_use_void_label else args.num_classes
-
+    
     # Dataset stuff
     additional_targets = {domain: DOMAIN_CONF[domain]['aug_type'] for domain in args.all_domains}
 
@@ -385,14 +385,14 @@ def main(args):
     if args.model != 'multivit_base' and args.output_adapter == 'dpt':
         raise NotImplementedError('Unsupported backbone: DPT head is fixed for ViT-B.')
 
-    adapters_dict = {
+    adapters_dict = { #REF adapters_dict
         'segmenter': partial(SegmenterMaskTransformerAdapter, depth=args.decoder_depth, drop_path_rate=args.drop_path_decoder),
         'convnext': partial(ConvNeXtAdapter, preds_per_patch=args.decoder_preds_per_patch, depth=args.decoder_depth,
                             interpolate_mode=args.decoder_interpolate_mode, main_tasks=args.decoder_main_tasks.split('-')),
         'dpt': partial(DPTOutputAdapter, stride_level=1, main_tasks=args.decoder_main_tasks.split('-'), head_type='semseg'),
     }
 
-    output_adapters = {
+    output_adapters = { 
         'semseg': adapters_dict[args.output_adapter](
             num_classes=args.num_classes_with_void,
             embed_dim=args.decoder_dim, patch_size=args.patch_size,
@@ -705,7 +705,7 @@ def evaluate(model, criterion, data_loader, device, epoch, in_domains, num_class
     if log_images:
         rgb_gts = []
         seg_preds_with_void = []
-        depth_gts = []
+        depth_gts = [] #gts mean ground truth
 
     for (x, _) in metric_logger.log_every(data_loader, print_freq, header):
         tasks_dict = {
@@ -804,8 +804,8 @@ def compute_metrics_distributed(seg_preds, seg_gts, size, num_classes, device, i
         )
         # cat_iou = ret_metrics[2]
 
-    # broadcast metrics from 0 to all nodes
-    dist.broadcast(ret_metrics_mean, 0)
+    # # broadcast metrics from 0 to all nodes
+    # dist.broadcast(ret_metrics_mean, 0)
     pix_acc, mean_acc, miou = ret_metrics_mean
     ret = dict(pixel_accuracy=pix_acc, mean_accuracy=mean_acc, mean_iou=miou)
     return ret

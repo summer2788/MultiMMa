@@ -30,7 +30,7 @@ from .output_adapter_utils import (ConvNeXtBlock, Interpolate,
                                    make_fusion_block, make_scratch)
 
 
-class SpatialOutputAdapter(nn.Module):
+class SpatialOutputAdapter(nn.Module): #REF: spatial output adapter
     """Cross-attention adapter for spatial outputs, like images or feature maps.
 
     :param num_channels: Number of input channels of the image/feature map
@@ -282,7 +282,7 @@ class SpatialOutputAdapter(nn.Module):
         return x
 
 
-class LinearOutputAdapter(nn.Module):
+class LinearOutputAdapter(nn.Module): #REF: linear output adapter
     """
     Linear output adapter.
 
@@ -478,7 +478,7 @@ class SegmenterMaskTransformerAdapter(nn.Module):
         return masks
 
 
-class ConvNeXtAdapter(nn.Module):
+class ConvNeXtAdapter(nn.Module): #REF: ConvNeXt output adapter
     """Output adapter with ConvNext blocks for semantic segmentation
 
     :param num_classes: Number of classes

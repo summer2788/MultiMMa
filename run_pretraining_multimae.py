@@ -46,11 +46,11 @@ from utils.optim_factory import create_optimizer
 from utils.task_balancing import (NoWeightingStrategy,
                                   UncertaintyWeightingStrategy)
 
-DOMAIN_CONF = {
+DOMAIN_CONF = { 
     'rgb': {
         'channels': 3,
         'stride_level': 1,
-        'input_adapter': partial(PatchedInputAdapter, num_channels=3),
+        'input_adapter': partial(PatchedInputAdapter, num_channels=3), #
         'output_adapter': partial(SpatialOutputAdapter, num_channels=3),
         'loss': MaskedMSELoss,
     },
@@ -60,7 +60,7 @@ DOMAIN_CONF = {
         'input_adapter': partial(PatchedInputAdapter, num_channels=1),
         'output_adapter': partial(SpatialOutputAdapter, num_channels=1),
         'loss': MaskedL1Loss,
-    },
+    },  
     'semseg': {
         'num_classes': 133,
         'stride_level': 4,
@@ -170,8 +170,8 @@ def get_args():
     parser.add_argument('--warmup_steps', type=int, default=-1, metavar='N',
                         help='Epochs to warmup LR, if scheduler supports (default: %(default)s)')
 
-    parser.add_argument('--fp32_output_adapters', type=str, default='',
-                        help='Tasks output adapters to compute in fp32 mode, separated by hyphen.')
+    parser.add_argument('--fp32_output_adapters', type=str, default='', 
+                        help='Tasks output adapters to compute in fp32 mode, separated by hyphen.') #fp32 means float32
 
     # Augmentation parameters
     parser.add_argument('--hflip', type=float, default=0.5,
