@@ -371,7 +371,6 @@ def main(args):
 
 
     args.in_domains = args.in_domains.split('-') # ex ['rgb']
-    args.in_domains = args.in_domains.split('-') # ex ['rgb']
     args.out_domains = ['semseg','depth'] 
     args.all_domains = list(set(args.in_domains) | set(args.out_domains)) # ex ['depth', 'rgb', 'semseg']
     if args.use_mask_valid:
