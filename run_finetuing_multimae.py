@@ -936,6 +936,11 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains, num_c
         for k, v in scores.items():
             metric_logger.update(**{f"{k}": v})
 
+        if log_images:
+            rgb_gts.extend(tasks_dict['rgb'].cpu().unbind(0))
+            seg_preds_with_void.extend(list(seg_pred.argmax(dim=1).cpu().numpy()))
+        
+
         if log_images and pred_images is None and utils.is_main_process():
             pred_images = {task: v.detach().cpu().float() for task, v in preds.items()}
             gt_images = {task: v.detach().cpu().float() for task, v in input_dict.items()}
@@ -948,6 +953,8 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains, num_c
     if log_images and utils.is_main_process():
         prefix = 'val/img' if mode == 'val' else 'test/img'
         log_taskonomy_wandb(pred_images, gt_images, prefix=prefix, image_count=8)
+        log_semseg_wandb(rgb_gts, seg_preds_with_void, seg_gts, depth_gts=depth_gts, dataset_name='nyu', prefix=prefix)
+
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()

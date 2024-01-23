@@ -91,6 +91,8 @@ def log_taskonomy_wandb(
         prefix=""
     ):
     pred_tasks = list(preds.keys())
+    if 'semseg' in pred_tasks:
+        pred_tasks.remove('semseg')
     gt_tasks = list(gts.keys())
     if 'mask_valid' in gt_tasks:
         gt_tasks.remove('mask_valid')
