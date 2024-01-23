@@ -528,13 +528,13 @@ def main(args):
     if args.loss == 'l1':
         tasks_loss_fn = { #REF : task_loss_fn
             'depth': masked_l1_loss,
-            'semseg': partial(torch.nn.CrossEntropyLoss,ignore_index=utils.SEG_IGNORE_INDEX)
+            'semseg': torch.nn.CrossEntropyLoss(ignore_index=utils.SEG_IGNORE_INDEX)
 
         }
     elif args.loss == 'berhu':
         tasks_loss_fn = {
             'depth': masked_berhu_loss,
-            'semseg': partial(torch.nn.CrossEntropyLoss,ignore_index=utils.SEG_IGNORE_INDEX)
+            'semseg': torch.nn.CrossEntropyLoss(ignore_index=utils.SEG_IGNORE_INDEX)
         }
     else:
         raise NotImplementedError
@@ -753,7 +753,7 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
 
             preds = model(input_dict, return_all_layers=return_all_layers)
             # print('=====> preds:', {k: v.shape for k, v in preds.items()})
-            task_losses = {
+            task_losses = { ##TODO : tasks_loss_fn
                 task: tasks_loss_fn[task](preds[task].float(), tasks_dict[task]) #ex) masked_berhu_loss(preds['depth'].float(), tasks_dict['depth'], mask_valid=None)
                 for task in preds
             }
@@ -775,8 +775,8 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
         grad_norm = loss_scaler(loss, optimizer, clip_grad=max_norm,
                                 parameters=model.parameters(), create_graph=is_second_order)
         
-        if fp16:
-            loss_scale_value = loss_scaler.state_dict()["scale"]
+        # if fp16:   # No Idea
+        #     loss_scale_value = loss_scaler.state_dict()["scale"] 
 
         torch.cuda.synchronize() #synchronize the current device
 
@@ -784,8 +784,8 @@ def train_one_epoch(model: torch.nn.Module, tasks_loss_fn: Dict[str, torch.nn.Mo
         metric_logger.update(**metrics)
         metric_logger.update(loss=loss_value)
         metric_logger.update(**task_loss_values)
-        if fp16:
-            metric_logger.update(loss_scale=loss_scale_value)
+        # if fp16:
+        #     metric_logger.update(loss_scale=loss_scale_value)
         # metric_logger.update(loss_scale=loss_scale_value)
         min_lr = 10.
         max_lr = 0.
