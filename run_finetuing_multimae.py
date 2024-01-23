@@ -318,7 +318,7 @@ def get_args():
     parser.add_argument('--wandb_run_name', default=None, type=str,
                         help='run name on wandb')
     parser.add_argument('--wandb_group', default='', type=str)
-    parser.add_argument('--log_images_wandb', action='store_true') 
+    parser.add_argument('--log_images_wandb', action='store_true')  # this is for logging images to wandb
     parser.add_argument('--log_images_freq', default=5, type=int,
                         help="Frequency of image logging (in epochs)")
     parser.add_argument('--show_user_warnings', default=False, action='store_true')
@@ -369,12 +369,14 @@ def main(args):
     else:
         log_writer = None
 
+
+    args.in_domains = args.in_domains.split('-') # ex ['rgb']
     args.in_domains = args.in_domains.split('-') # ex ['rgb']
     args.out_domains = ['semseg','depth'] 
     args.all_domains = list(set(args.in_domains) | set(args.out_domains)) # ex ['depth', 'rgb', 'semseg']
     if args.use_mask_valid:
         args.all_domains.append('mask_valid')
-    if 'rgb' not in args.all_domains:
+    if 'rgb' not in args.all_domains:   
         args.all_domains.append('rgb')
     args.decoder_main_tasks = args.decoder_main_tasks.split('-') # for acessing encoder's output index , ex)  ['rgb']
     for task in args.decoder_main_tasks:
@@ -613,7 +615,7 @@ def main(args):
             data_loader_train.sampler.set_epoch(epoch)
         if log_writer is not None:
             log_writer.set_step(epoch * num_training_steps_per_epoch)
-        log_images = args.log_wandb and args.log_images_wandb and (epoch % args.log_images_freq == 0)
+        log_images = args.log_wandb and args.log_images_wandb and (epoch % args.log_images_freq == 0) # True 
         train_stats = train_one_epoch(
             model=model, tasks_loss_fn=tasks_loss_fn, data_loader=data_loader_train,
             optimizer=optimizer, device=device, epoch=epoch, loss_scaler=loss_scaler,
@@ -630,8 +632,8 @@ def main(args):
                     loss_scaler=loss_scaler, epoch=epoch)
 
         if epoch % args.eval_freq == 0 or epoch == args.epochs - 1: 
-            log_images = args.log_wandb and args.log_images_wandb and (epoch % args.log_images_freq == 0)
-            val_stats = evaluate(model=model, tasks_loss_fn=tasks_loss_fn, data_loader=data_loader_val,
+            log_images = args.log_wandb and args.log_images_wandb and (epoch % args.log_images_freq == 0) # True
+            val_stats = evaluate(model=model, tasks_loss_fn=tasks_loss_fn, data_loader=data_loader_val,num_classes=args.num_classes,
                                  device=device, epoch=epoch, in_domains=args.in_domains, log_images=log_images,
                                  mode='val', return_all_layers=return_all_layers, standardize_depth=args.standardize_depth, fp16=args.fp16)
             if val_stats["loss"] < min_val_loss:
@@ -935,7 +937,6 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains, num_c
             metric_logger.update(**{f"{k}": v})
 
         if log_images and pred_images is None and utils.is_main_process():
-            # Just log images of first batch
             pred_images = {task: v.detach().cpu().float() for task, v in preds.items()}
             gt_images = {task: v.detach().cpu().float() for task, v in input_dict.items()}
             gt_images.update({task: v.detach().cpu().float() for task, v in tasks_dict.items() if task not in gt_images})

@@ -44,7 +44,7 @@ def get_world_size():
     return dist.get_world_size()
 
 
-def get_rank():
+def get_rank(): # get the rank of the current process , if not distributed, return 0
     if not is_dist_avail_and_initialized():
         return 0
     return dist.get_rank()
