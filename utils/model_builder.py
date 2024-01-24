@@ -27,7 +27,7 @@ def safe_model_name(model_name, remove_source=True):
 
 
 def create_model(
-        model_name,
+        model_name, # ex) multi vit base 
         pretrained=False,
         checkpoint_path='',
         scriptable=None,
@@ -49,7 +49,7 @@ def create_model(
         global_pool (str): global pool type (default: 'avg')
         **: other kwargs are model specific
     """
-    source_name, model_name = split_model_name(model_name)
+    source_name, model_name = split_model_name(model_name)  # model_name = multivit_base
 
     # Only EfficientNet and MobileNetV3 models have support for batchnorm params or drop_connect_rate passed as args
     is_efficientnet = is_model_in_modules(model_name, ['efficientnet', 'mobilenetv3'])
@@ -69,8 +69,10 @@ def create_model(
     # should default to None in command line args/cfg. Remove them if they are present and not set so that
     # non-supporting models don't break and default args remain in effect.
     kwargs = {k: v for k, v in kwargs.items()}
+    print('kwargs: {kwargs}')
+    print('model_entrypoint : {model_entrypoint}')
 
-    create_fn = model_entrypoint(model_name)
-    model = create_fn(**kwargs) # This is where the model is created
-
+    create_fn = model_entrypoint(model_name) # model name = multi vit base
+    model = create_fn(**kwargs) # This is where the model is created, ex: model = create_fn(**kwargs) = create_fn(num_classes=1000, drop_rate=0.0, drop_path_rate=0.2, global_pool='avg', bn_tf=False, bn_momentum=0.1, bn_eps=1e-05)
+ 
     return model

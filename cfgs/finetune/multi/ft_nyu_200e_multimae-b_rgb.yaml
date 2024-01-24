@@ -27,7 +27,7 @@ warmup_lr: 0.000001 # = 1e-6
 min_lr: 0.
 warmup_epochs: 100
 batch_size: 16
-input_size: 256
+input_size: 640
 layer_decay: 0.75
 weight_decay: 0.0001 # 1e-4
 

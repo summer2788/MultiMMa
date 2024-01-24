@@ -874,7 +874,7 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains, num_c
         # print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
         #check tasks_dict['depth] has all 0 values
         # print('=====> tasks_dict[depth]:', tasks_dict['depth'])
-
+        
         input_dict = {
             task: tensor
             for task, tensor in tasks_dict.items()
@@ -980,6 +980,7 @@ def compute_metrics(seg_preds, seg_gts, size, num_classes, device, ignore_index=
         ordered_seg_preds = [result for result_part in all_seg_preds for result in result_part]
         ordered_seg_gts = [result for result_part in all_seg_gts for result in result_part]
 
+
         ret_metrics = mean_iou(results=ordered_seg_preds,
                                gt_seg_maps=ordered_seg_gts,
                                num_classes=num_classes,
@@ -1011,3 +1012,6 @@ if __name__ == '__main__':
     if opts.output_dir:
         Path(opts.output_dir).mkdir(parents=True, exist_ok=True)
     main(opts)
+
+
+
