@@ -1,0 +1,61 @@
+# NYU depth+seg config, my one 
+
+# Finetune from:
+finetune: '/content/drive/MyDrive/projects/urp/mmae/Multimae B 98 RGB Depth Semseg 1600e.pth' # Change me
+resume:  '/content/drive/MyDrive/projects/urp/mmae/Multimae B 98 RGB Depth Semseg 1600e.pth' # Change me
+ 
+# Input tasks
+in_domains: rgb
+use_mask_valid: False # Requires "task" mask_valid to be saved to disk , mask_valid is a binary mask of valid pixels
+
+# Architecture
+model: multivit_base
+patch_size: 16
+decoder_dim: 256 # for convnext
+num_global_tokens: 1
+drop_path_encoder: 0.0
+output_adapter: dpt
+decoder_preds_per_patch: 16
+decoder_depth: 4
+
+# Train
+loss: berhu
+epochs: 200
+opt: adamw
+lr: 0.0001 # = 1e-4
+warmup_lr: 0.000001 # = 1e-6
+min_lr: 0.
+warmup_epochs: 100
+batch_size: 16
+input_size: 640
+layer_decay: 0.75
+weight_decay: 0.0001 # 1e-4
+
+# Augmentation
+aug_name: simple
+
+# Data info
+data_path: '/content/drive/MyDrive/projects/urp/mmae/NYUv2/train' # Change me
+eval_data_path: '/content/drive/MyDrive/projects/urp/mmae/NYUv2/test' # Change me
+color_augs: True
+num_classes: 40
+dataset_name: nyu
+seg_reduce_zero_label: True
+dist_eval: False
+eval_freq: 250
+standardize_depth: False
+
+# Misc
+find_unused_params: True
+
+#for vpt 
+freeze_transformer: True
+
+# Wandb and logging
+log_wandb: True # Set to True to log to Weights & Biases
+wandb_project: 'multimae-finetune-depth+seg'
+wandb_entity: null # Change if needed
+wandb_run_name: 'ft_nyu_2000e_multimae-b'
+log_images_wandb: True
+log_images_freq: 250
+output_dir: '/content/drive/MyDrive/projects/urp/mmae/output' # Change if needed
