@@ -11,7 +11,7 @@ use_mask_valid: False # Requires "task" mask_valid to be saved to disk , mask_va
 # Architecture
 model: multivit_base
 patch_size: 16
-decoder_dim: 256 # for convnext
+decoder_dim: 6144 # for convnext
 num_global_tokens: 1
 drop_path_encoder: 0.0
 output_adapter: dpt
