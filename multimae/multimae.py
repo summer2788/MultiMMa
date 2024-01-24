@@ -104,7 +104,7 @@ class MultiMAE(nn.Module):
         val = math.sqrt(6. / float(3 * reduce(mul, patch_size, 1) + self.prompt_dim))  # 16 mean patch size           
         self.prompt_tokens = nn.Parameter(torch.zeros(1, self.prompt_num_tokens, self.prompt_dim))
         # xavier_uniform initialization
-        nn.init.uniform_(self.prompt_embeddings.data, -val, val)    
+        nn.init.uniform_(self.prompt_tokens.data, -val, val)    
         
         #Deep prompt 
         total_d_layer= 12 # total number of layers in the encoder
