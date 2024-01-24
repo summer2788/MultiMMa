@@ -101,7 +101,7 @@ def masked_nyu_metrics(preds, target, mask_valid=None):
     if preds.shape[1] != mask_valid.shape[1]:  #preds.shape would be (batch_size, 1, 256, 256)
         mask_valid = mask_valid.repeat_interleave(preds.shape[1], 1)
 
-        n = mask_valid.sum()
+    n = mask_valid.sum()
     
     diff = torch.abs(preds - target)
     diff[~mask_valid] = 0 #invalid area are zero out 
