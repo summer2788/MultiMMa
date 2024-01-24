@@ -20,6 +20,7 @@ from collections import OrderedDict
 from functools import partial, reduce
 from typing import Dict, List, Optional, Union
 from torch.nn import Dropout
+from torch.nn.modules.utils import _pair
 import torch
 from einops import rearrange, repeat
 from torch import nn
@@ -98,9 +99,9 @@ class MultiMAE(nn.Module):
         def mul(a, b):
             "Same as a * b."
             return a * b
-        
+        patch_size = _pair(16) 
         # randominitiate prompt:
-        val = math.sqrt(6. / float(3 * reduce(mul, 16, 1) + self.prompt_dim))  # 16 mean patch size           
+        val = math.sqrt(6. / float(3 * reduce(mul, patch_size, 1) + self.prompt_dim))  # 16 mean patch size           
         self.prompt_tokens = nn.Parameter(torch.zeros(1, self.prompt_num_tokens, self.prompt_dim))
         # xavier_uniform initialization
         nn.init.uniform_(self.prompt_embeddings.data, -val, val)    
@@ -395,7 +396,7 @@ class MultiMAE(nn.Module):
                 encoder_tokens = self.encoder.layer[i](encoder_tokens)
 
 
-                
+
         #encoder_tokens = self.encoder(input_tokens)
 
         ## Output decoders
