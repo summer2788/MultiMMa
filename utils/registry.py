@@ -27,7 +27,7 @@ def register_model(fn):
     # lookup containing module
     print(f'register_model: {fn.__module__}')
     
-    mod = sys.modules[f'reg']
+    mod = sys.modules[fn.__module__]
     module_name_split = fn.__module__.split('.')
     module_name = module_name_split[-1] if len(module_name_split) else ''  
 
