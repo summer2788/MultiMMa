@@ -874,7 +874,7 @@ def evaluate(model, tasks_loss_fn, data_loader, device, epoch, in_domains, num_c
         # print('=====> tasks_dict:', {k: v.shape for k, v in tasks_dict.items()})
         #check tasks_dict['depth] has all 0 values
         # print('=====> tasks_dict[depth]:', tasks_dict['depth'])
-        
+
         input_dict = {
             task: tensor
             for task, tensor in tasks_dict.items()
@@ -1012,6 +1012,4 @@ if __name__ == '__main__':
     if opts.output_dir:
         Path(opts.output_dir).mkdir(parents=True, exist_ok=True)
     main(opts)
-
-
 

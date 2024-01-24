@@ -64,7 +64,8 @@ def create_model(
         print("WARNING: 'drop_connect' as an argument is deprecated, please use 'drop_path'."
               " Setting drop_path to %f." % drop_connect_rate)
         kwargs['drop_path_rate'] = drop_connect_rate
-
+    
+    
     # Parameters that aren't supported by all models or are intended to only override model defaults if set
     # should default to None in command line args/cfg. Remove them if they are present and not set so that
     # non-supporting models don't break and default args remain in effect.
@@ -76,7 +77,8 @@ def create_model(
     model = create_fn(**kwargs) # This is where the model is created, ex: model = create_fn(**kwargs) = create_fn(num_classes=1000, drop_rate=0.0, drop_path_rate=0.2, global_pool='avg', bn_tf=False, bn_momentum=0.1, bn_eps=1e-05)
  
     return model
+ 
 
-
+    
 
     

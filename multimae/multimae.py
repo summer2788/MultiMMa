@@ -17,9 +17,9 @@
 import itertools
 import math
 from collections import OrderedDict
-from functools import partial
+from functools import partial, reduce
 from typing import Dict, List, Optional, Union
-
+from torch.nn import Dropout
 import torch
 from einops import rearrange, repeat
 from torch import nn
@@ -88,7 +88,33 @@ class MultiMAE(nn.Module):
         self.num_global_tokens = num_global_tokens
         self.global_tokens = nn.Parameter(torch.zeros(1, num_global_tokens, dim_tokens))
         trunc_normal_(self.global_tokens, std=0.02)
+
+        # prompt tokens 
+        self.prompt_num_tokens = 100
+        self.prompt_dropout = Dropout(0.1) 
+        self.prompt_dim =  dim_tokens
+        self.prompt_proj = nn.Identity()
         
+        def mul(a, b):
+            "Same as a * b."
+            return a * b
+        
+        # randominitiate prompt:
+        val = math.sqrt(6. / float(3 * reduce(mul, 16, 1) + self.prompt_dim))  # 16 mean patch size           
+        self.prompt_tokens = nn.Parameter(torch.zeros(1, self.prompt_num_tokens, self.prompt_dim))
+        # xavier_uniform initialization
+        nn.init.uniform_(self.prompt_embeddings.data, -val, val)    
+        
+        #Deep prompt 
+        total_d_layer= 12 # total number of layers in the encoder
+        #save deep prompt weights 
+        self.deep_prompt_embeddings = nn.Parameter(torch.zeros(
+                    total_d_layer, self.prompt_num_tokens, self.prompt_dim))
+        # xavier_uniform initialization
+        nn.init.uniform_(self.deep_prompt_embeddings.data, -val, val)
+
+
+
         # Transformer encoder
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
         self.encoder = nn.Sequential(*[
@@ -344,10 +370,33 @@ class MultiMAE(nn.Module):
 
         # Add global tokens to input tokens
         global_tokens = repeat(self.global_tokens, '() n d -> b n d', b=B)
-        input_tokens = torch.cat([input_tokens, global_tokens], dim=1)
+        prompt_tokens= repeat(self.global_tokens, '() n d -> b n d', b=B)
 
-        ## Transformer forward pass
-        encoder_tokens = self.encoder(input_tokens)
+        input_tokens = torch.cat([input_tokens, global_tokens,prompt_tokens], dim=1)
+
+
+        ## Transformer deep prompt forward pass
+        for i in range(self.get_num_layers):
+            # add deep prompt tokens
+            if i == 0:
+               encoder_tokens = self.encoder(input_tokens)
+            else:
+                if i <= self.deep_prompt_embeddings.shape[0]:
+                    deep_prompt_emb = self.prompt_dropout(self.prompt_proj(
+                            self.deep_prompt_embeddings[i-1]).expand(B, -1, -1)) 
+                    
+                    #encoder pass 
+                    encoder_tokens= torch.cat((
+                        encoder_tokens[:, :1, :],
+                        deep_prompt_emb,
+                        encoder_tokens[:, (1+self.num_tokens):, :]
+                    ), dim=1)
+
+                encoder_tokens = self.encoder.layer[i](encoder_tokens)
+
+
+                
+        #encoder_tokens = self.encoder(input_tokens)
 
         ## Output decoders
         if self.output_adapters is None:

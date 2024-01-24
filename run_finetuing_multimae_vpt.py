@@ -515,7 +515,8 @@ def main(args):
     # Optionally freeze the encoder
     if args.freeze_transformer:
         for param in model.encoder.parameters():
-            param.requires_grad = False
+            if "prompt" not in k: 
+                param.requires_grad = False #freeze all parameters except prompt
 
     model.to(device)
 
@@ -1009,8 +1010,6 @@ if __name__ == '__main__':
     if opts.tmp:
         opts.wandb_run_name = f'tmp-{opts.wandb_run_name}'
     if opts.output_dir:
-        Path(opts.output_dir).mkdir(parents=True, exist_ok=True)
+       Path(opts.output_dir).mkdir(parents=True, exist_ok=True)
     main(opts)
-
-
 
