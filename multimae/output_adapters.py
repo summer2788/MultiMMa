@@ -161,7 +161,7 @@ class SpatialOutputAdapter(nn.Module): #REF: spatial output adapter
                                     bs: int,
                                     size: Tuple[int, int],
                                     device: Optional[torch.device] = None):
-        context_embeddings = []
+       
         for task, info in input_info["tasks"].items():
             if self.task_embeddings is not None and task in self.task_embeddings:
                 task_emb = repeat(self.task_embeddings[task], '() () d -> b n d', b=bs, n=info['num_tokens'])
