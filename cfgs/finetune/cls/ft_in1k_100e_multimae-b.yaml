@@ -1,5 +1,6 @@
 # Finetune from:
-finetune: '/path/to/pretrained_weights' # Change me
+finetune: '/content/drive/MyDrive/projects/urp/mmae/Multimae B 98 RGB Depth Semseg 1600e.pth' # Change me
+
 
 # Model
 model: multivit_base
@@ -18,7 +19,7 @@ dist_eval: True
 layer_decay: 0.65
 
 # Data
-data_path: '/path/to/dataset' # Change me
+data_path: '/content/drive/MyDrive/projects/urp/mmae/NYUv2/train'  # Change me
 eval_data_path: '/path/to/eval_dataset' # Change me
 
 # Wandb logging
