@@ -63,6 +63,13 @@ Conducted experiments demonstrate the effectiveness of prompt tuning in multi-ta
 
 Suggests further exploration into task-specific prompt pooling and efficient normalization techniques to enhance model adaptability and performance across diverse tasks.
 
+
+## WandaDB results
+<img width="1067" alt="Screenshot 2024-03-17 at 9 07 12 PM" src="https://github.com/summer2788/MultiMMa/assets/69735105/1974367a-7f25-4e4e-961f-61f8a3d480be">
+
+[results](https://wandb.ai/skku-aim-lab-urp2023-winter/Deep%20vpt?nw=nwuserkoseumoseu57)
+
+
 ## Acknowledgements
 
 Credits to the original MultiMAE project and its contributors. This enhancement also builds upon foundational works in prompt tuning and multi-task learning in the vision domain.
